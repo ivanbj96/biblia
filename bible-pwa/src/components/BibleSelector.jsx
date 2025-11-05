@@ -24,8 +24,7 @@ const BibleSelector = ({
     book.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const oldTestament = filteredBooks.filter((_, index) => index < 39);
-  const newTestament = filteredBooks.filter((_, index) => index >= 39);
+
 
   const handleBibleSelect = (bible) => {
     onBibleSelect(bible.id);
@@ -54,7 +53,7 @@ const BibleSelector = ({
           <Card 
             key={bible.id}
             className={`cursor-pointer transition-all hover:shadow-md active:scale-98 ${
-              selectedBible === bible.id ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''
+              selectedBible === bible.id ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
             onClick={() => handleBibleSelect(bible)}
           >
@@ -73,85 +72,91 @@ const BibleSelector = ({
     </div>
   );
 
-  const renderBookSelection = () => (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-2xl font-bold">Selecciona un Libro</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {bibles.find(b => b.id === selectedBible)?.name}
-          </p>
+  const renderBookSelection = () => {
+    // Separar libros por testamento basado en índice
+    const oldTestamentBooks = filteredBooks.slice(0, 39);
+    const newTestamentBooks = filteredBooks.slice(39);
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold">Selecciona un Libro</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {bibles.find(b => b.id === selectedBible)?.name}
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setCurrentStep('bible')}>
+            Cambiar Biblia
+          </Button>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => setCurrentStep('bible')}>
-          Cambiar Biblia
-        </Button>
-      </div>
 
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <Input
-          placeholder="Buscar libro..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Buscar libro..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
 
-      <div className="space-y-6">
-        {oldTestament.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                Antiguo Testamento
-              </Badge>
-              <span className="text-sm text-gray-500">{oldTestament.length} libros</span>
+        <div className="space-y-6">
+          {oldTestamentBooks.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  Antiguo Testamento
+                </Badge>
+                <span className="text-sm text-gray-500">{oldTestamentBooks.length} libros</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {oldTestamentBooks.map(book => (
+                  <Button
+                    key={book.id}
+                    variant={selectedBook === book.id ? "default" : "outline"}
+                    className="h-auto p-3 text-left justify-start hover:scale-105 active:scale-95 transition-all"
+                    onClick={() => handleBookSelect(book)}
+                  >
+                    <div>
+                      <div className="font-medium text-sm">{book.name}</div>
+                      <div className="text-xs opacity-70">Libro bíblico</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {oldTestament.map(book => (
-                <Button
-                  key={book.id}
-                  variant={selectedBook === book.id ? "default" : "outline"}
-                  className="h-auto p-3 text-left justify-start hover:scale-105 active:scale-95 transition-all"
-                  onClick={() => handleBookSelect(book)}
-                >
-                  <div>
-                    <div className="font-medium text-sm">{book.name}</div>
-                    <div className="text-xs opacity-70">{book.chapters?.length || 0} cap.</div>
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
 
-        {newTestament.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                Nuevo Testamento
-              </Badge>
-              <span className="text-sm text-gray-500">{newTestament.length} libros</span>
+          {newTestamentBooks.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  Nuevo Testamento
+                </Badge>
+                <span className="text-sm text-gray-500">{newTestamentBooks.length} libros</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {newTestamentBooks.map(book => (
+                  <Button
+                    key={book.id}
+                    variant={selectedBook === book.id ? "default" : "outline"}
+                    className="h-auto p-3 text-left justify-start hover:scale-105 active:scale-95 transition-all"
+                    onClick={() => handleBookSelect(book)}
+                  >
+                    <div>
+                      <div className="font-medium text-sm">{book.name}</div>
+                      <div className="text-xs opacity-70">Libro bíblico</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {newTestament.map(book => (
-                <Button
-                  key={book.id}
-                  variant={selectedBook === book.id ? "default" : "outline"}
-                  className="h-auto p-3 text-left justify-start hover:scale-105 active:scale-95 transition-all"
-                  onClick={() => handleBookSelect(book)}
-                >
-                  <div>
-                    <div className="font-medium text-sm">{book.name}</div>
-                    <div className="text-xs opacity-70">{book.chapters?.length || 0} cap.</div>
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderChapterSelection = () => {
     const selectedBookData = books.find(b => b.id === selectedBook);

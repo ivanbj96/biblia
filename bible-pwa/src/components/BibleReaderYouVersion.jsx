@@ -269,7 +269,7 @@ const BibleReader = () => {
           <p className="text-base sm:text-xl opacity-90 mb-4 sm:mb-6">Conecta con Dios y tu comunidad</p>
           <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <Button 
-              onClick={() => setCurrentView('reader')} 
+              onClick={() => setShowBibleSelector(true)} 
               className="bg-white text-blue-600 hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
               size="lg"
             >
@@ -907,6 +907,11 @@ const BibleReader = () => {
         setCurrentView={setCurrentView}
         favorites={favorites}
         setShowSettings={setShowSettings}
+        onSearchClick={() => {
+          setCurrentView('search');
+          document.querySelector('input[placeholder="Buscar..."]')?.focus();
+        }}
+        onBibleSelectorClick={() => setShowBibleSelector(true)}
       />
       
       {/* Toast Notifications */}

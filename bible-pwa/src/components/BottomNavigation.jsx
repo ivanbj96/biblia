@@ -1,18 +1,22 @@
 import { Button } from '@/components/ui/button';
 import { Home, BookOpen, Heart, Search, Settings } from 'lucide-react';
 
-const BottomNavigation = ({ currentView, setCurrentView, favorites, setShowSettings }) => {
+const BottomNavigation = ({ currentView, setCurrentView, favorites, setShowSettings, onSearchClick, onBibleSelectorClick }) => {
   const navItems = [
     { id: 'home', icon: Home, label: 'Inicio' },
-    { id: 'reader', icon: BookOpen, label: 'Leer' },
     { id: 'search', icon: Search, label: 'Buscar' },
+    { id: 'bible', icon: BookOpen, label: 'Biblia' },
     { id: 'favorites', icon: Heart, label: 'Favoritos', badge: favorites.length },
-    { id: 'settings', icon: Settings, label: 'Config' }
+    { id: 'settings', icon: Settings, label: 'Más' }
   ];
 
   const handleNavClick = (id) => {
     if (id === 'settings') {
       setShowSettings(true);
+    } else if (id === 'search') {
+      onSearchClick();
+    } else if (id === 'bible') {
+      onBibleSelectorClick();
     } else {
       setCurrentView(id);
     }
@@ -28,7 +32,10 @@ const BottomNavigation = ({ currentView, setCurrentView, favorites, setShowSetti
             size="sm"
             onClick={() => handleNavClick(item.id)}
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              currentView === item.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
+              (currentView === item.id || 
+               (item.id === 'bible' && currentView === 'reader') ||
+               (item.id === 'search' && currentView === 'search')) 
+                ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
             }`}
           >
             <div className="relative">
