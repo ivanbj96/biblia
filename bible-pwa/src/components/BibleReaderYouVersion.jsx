@@ -665,7 +665,7 @@ const BibleReader = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="sm:hidden"
+                className="lg:hidden"
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -738,10 +738,10 @@ const BibleReader = () => {
       </header>
 
       <div className="flex">
-        {/* Sidebar - Hidden on mobile, use bottom nav instead */}
+        {/* Sidebar */}
         <div className={`fixed inset-y-0 left-0 z-30 w-80 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r hidden sm:block`}>
+        } ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r`}>
           <div className="flex flex-col h-full">
             <div className="p-4 border-b">
               <div className="flex items-center justify-between">
@@ -837,7 +837,7 @@ const BibleReader = () => {
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div 
-            className="fixed inset-0 z-20 bg-black bg-opacity-50 sm:hidden"
+            className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
