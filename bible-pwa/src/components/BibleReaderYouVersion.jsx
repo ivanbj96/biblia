@@ -34,6 +34,7 @@ import {
   Volume2
 } from 'lucide-react';
 import { getBibles, getBooks, getChapters, getChapterContent, searchBible, getVerseOfTheDay } from '../services/bibleApi';
+import BottomNavigation from './BottomNavigation';
 
 const BibleReader = () => {
   const [bibles, setBibles] = useState([]);
@@ -199,16 +200,17 @@ const BibleReader = () => {
 
   const renderHome = () => (
     <div className="space-y-6">
-      {/* Hero Section - YouVersion Style */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 text-white">
+      {/* Hero Section - Mobile Optimized */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 text-white mx-2 sm:mx-0">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative px-8 py-12 text-center">
-          <h1 className="text-4xl font-bold mb-4">Biblia PWA</h1>
-          <p className="text-xl opacity-90 mb-6">Conecta con Dios y tu comunidad</p>
-          <div className="flex justify-center gap-4">
+        <div className="relative px-4 py-8 sm:px-8 sm:py-12 text-center">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">Biblia PWA</h1>
+          <p className="text-base sm:text-xl opacity-90 mb-4 sm:mb-6">Conecta con Dios y tu comunidad</p>
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <Button 
               onClick={() => setCurrentView('reader')} 
-              className="bg-white text-blue-600 hover:bg-gray-100"
+              className="bg-white text-blue-600 hover:bg-gray-100 w-full sm:w-auto"
+              size="lg"
             >
               <BookOpen className="mr-2 h-4 w-4" />
               Comenzar a Leer
@@ -217,7 +219,8 @@ const BibleReader = () => {
               <Button 
                 onClick={connectTelegram}
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-blue-600"
+                className="border-white text-white hover:bg-white hover:text-blue-600 w-full sm:w-auto"
+                size="lg"
               >
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Conectar Telegram
@@ -227,108 +230,112 @@ const BibleReader = () => {
         </div>
       </div>
 
-      {/* Verse of the Day - YouVersion Style */}
-      <Card className="mx-auto max-w-4xl border-0 shadow-lg">
+      {/* Verse of the Day - Mobile Optimized */}
+      <Card className="mx-2 sm:mx-auto max-w-4xl border-0 shadow-lg">
         <CardContent className="p-0">
           {verseOfTheDay ? (
-            <div className="relative bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-8 rounded-xl">
-              <div className="absolute top-4 right-4">
+            <div className="relative bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 sm:p-8 rounded-xl">
+              <div className="mb-4 sm:absolute sm:top-4 sm:right-4 sm:mb-0">
                 <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
                   Versículo del Día
                 </Badge>
               </div>
-              <blockquote className="text-2xl font-medium leading-relaxed mb-6 text-gray-800 dark:text-gray-200">
+              <blockquote className="text-lg sm:text-2xl font-medium leading-relaxed mb-4 sm:mb-6 text-gray-800 dark:text-gray-200">
                 "{verseOfTheDay.content}"
               </blockquote>
-              <div className="flex items-center justify-between">
-                <cite className="text-lg font-semibold text-amber-700 dark:text-amber-300">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <cite className="text-base sm:text-lg font-semibold text-amber-700 dark:text-amber-300">
                   {verseOfTheDay.reference}
                 </cite>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center sm:justify-end">
                   <Button 
                     size="sm" 
                     variant="ghost"
                     onClick={() => addToFavorites(verseOfTheDay.content, verseOfTheDay.reference)}
+                    className="flex-1 sm:flex-none"
                   >
-                    <Heart className="h-4 w-4" />
+                    <Heart className="h-4 w-4 mr-1" />
+                    <span className="sm:hidden">Favorito</span>
                   </Button>
                   <Button 
                     size="sm" 
                     variant="ghost"
                     onClick={() => shareToTelegram(verseOfTheDay.content, verseOfTheDay.reference)}
+                    className="flex-1 sm:flex-none"
                   >
-                    <Share2 className="h-4 w-4" />
+                    <Share2 className="h-4 w-4 mr-1" />
+                    <span className="sm:hidden">Compartir</span>
                   </Button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="p-8 space-y-4">
-              <Skeleton className="h-32 w-full" />
+            <div className="p-4 sm:p-8 space-y-4">
+              <Skeleton className="h-24 sm:h-32 w-full" />
               <Skeleton className="h-6 w-48" />
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Feature Cards - YouVersion Style */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Calendar className="h-6 w-6 text-white" />
+      {/* Feature Cards - Mobile First */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 px-2 sm:px-0">
+        <Card className="group active:scale-95 transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <h3 className="font-semibold mb-2">Planes de Lectura</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Sigue un plan estructurado</p>
+            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Planes</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Lectura diaria</p>
           </CardContent>
         </Card>
         
-        <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Users className="h-6 w-6 text-white" />
+        <Card className="group active:scale-95 transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <h3 className="font-semibold mb-2">Grupos de Estudio</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Únete via Telegram</p>
+            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Grupos</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Telegram</p>
           </CardContent>
         </Card>
         
-        <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <Bookmark className="h-6 w-6 text-white" />
+        <Card className="group active:scale-95 transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20" onClick={() => setCurrentView('favorites')}>
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+              <Bookmark className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <h3 className="font-semibold mb-2">Favoritos</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{favorites.length} versículos guardados</p>
+            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Favoritos</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{favorites.length} guardados</p>
           </CardContent>
         </Card>
         
-        <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-              <MessageCircle className="h-6 w-6 text-white" />
+        <Card className="group active:scale-95 transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+              <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <h3 className="font-semibold mb-2">Compartir</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Comparte en Telegram</p>
+            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Compartir</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Telegram</p>
           </CardContent>
         </Card>
       </div>
       
-      {/* Telegram Status */}
+      {/* Telegram Status - Mobile Optimized */}
       {telegramConnected && (
-        <Card className="mx-auto max-w-4xl border-green-200 bg-green-50 dark:bg-green-900/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+        <Card className="mx-2 sm:mx-auto max-w-4xl border-green-200 bg-green-50 dark:bg-green-900/20">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                   <MessageCircle className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-green-800 dark:text-green-200">Conectado con Telegram</h3>
-                  <p className="text-sm text-green-600 dark:text-green-300">Comparte versículos y únete a grupos de estudio</p>
+                  <p className="text-sm text-green-600 dark:text-green-300">Comparte versículos y únete a grupos</p>
                 </div>
               </div>
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
+              <Button size="sm" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Abrir Telegram
               </Button>
@@ -522,35 +529,35 @@ const BibleReader = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden"
+                className="sm:hidden"
               >
                 <Menu className="h-5 w-5" />
               </Button>
               <Book className="h-6 w-6 text-blue-600" />
-              <h1 className="text-xl font-bold">Biblia PWA</h1>
+              <h1 className="text-lg sm:text-xl font-bold">Biblia PWA</h1>
             </div>
             
-            {/* Search Bar */}
-            <div className="flex-1 max-w-md mx-4">
+            {/* Search Bar - Mobile Optimized */}
+            <div className="flex-1 max-w-md mx-2 sm:mx-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Buscar en la Biblia..."
+                  placeholder="Buscar..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10 pr-4"
+                  className="pl-10 pr-4 text-base"
                 />
               </div>
             </div>
 
-            {/* Settings Button */}
+            {/* Settings Button - Hidden on mobile */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
-              className="p-2"
+              className="p-2 hidden sm:flex"
             >
               <Settings className="h-5 w-5" />
             </Button>
@@ -595,10 +602,10 @@ const BibleReader = () => {
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
+        {/* Sidebar - Hidden on mobile, use bottom nav instead */}
         <div className={`fixed inset-y-0 left-0 z-30 w-80 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r`}>
+        } ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r hidden sm:block`}>
           <div className="flex flex-col h-full">
             <div className="p-4 border-b">
               <div className="flex items-center justify-between">
@@ -738,13 +745,13 @@ const BibleReader = () => {
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div 
-            className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+            className="fixed inset-0 z-20 bg-black bg-opacity-50 sm:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         {/* Main Content */}
-        <main className="flex-1 container mx-auto px-4 py-6">
+        <main className="flex-1 px-2 sm:px-4 py-4 sm:py-6 max-w-7xl mx-auto">
           {loading && currentView === 'home' ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -793,6 +800,17 @@ const BibleReader = () => {
           )}
         </main>
       </div>
+      
+      {/* Bottom Navigation for Mobile */}
+      <BottomNavigation 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        favorites={favorites}
+        setShowSettings={setShowSettings}
+      />
+      
+      {/* Bottom padding for mobile navigation */}
+      <div className="h-20 sm:hidden"></div>
     </div>
   );
 };
