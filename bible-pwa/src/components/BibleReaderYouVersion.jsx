@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { getBibles, getBooks, getChapters, getChapterContent, searchBible, getVerseOfTheDay } from '../services/bibleApi';
 import BottomNavigation from './BottomNavigation';
+import BibleSelector from './BibleSelector';
 import '../styles/verse-highlighting.css';
 
 const BibleReader = () => {
@@ -64,6 +65,7 @@ const BibleReader = () => {
   const [showToast, setShowToast] = useState(null);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [showBibleSelector, setShowBibleSelector] = useState(false);
 
   // Cargar Biblias al inicializar
   useEffect(() => {
@@ -342,13 +344,13 @@ const BibleReader = () => {
 
       {/* Feature Cards - Mobile First */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 px-2 sm:px-0">
-        <Card className="group active:scale-95 transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+        <Card className="group active:scale-95 transition-all duration-200 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20" onClick={() => setShowBibleSelector(true)}>
           <CardContent className="p-4 sm:p-6 text-center">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
-              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+              <Book className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Planes</h3>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Lectura diaria</p>
+            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Navegar</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Ir a pasaje</p>
           </CardContent>
         </Card>
         
@@ -763,7 +765,7 @@ const BibleReader = () => {
                   <div className="space-y-1">
                     <Button
                       variant={currentView === 'home' ? 'default' : 'ghost'}
-                      className="w-full justify-start"
+                      className="w-full justify-start hover:bg-blue-50 hover:text-blue-600 active:scale-98 transition-all"
                       onClick={() => setCurrentView('home')}
                     >
                       <Home className="mr-2 h-4 w-4" />
@@ -772,7 +774,7 @@ const BibleReader = () => {
                     {chapterContent && (
                       <Button
                         variant={currentView === 'reader' ? 'default' : 'ghost'}
-                        className="w-full justify-start"
+                        className="w-full justify-start hover:bg-green-50 hover:text-green-600 active:scale-98 transition-all"
                         onClick={() => setCurrentView('reader')}
                       >
                         <BookOpen className="mr-2 h-4 w-4" />
@@ -781,7 +783,7 @@ const BibleReader = () => {
                     )}
                     <Button
                       variant="ghost"
-                      className="w-full justify-start"
+                      className="w-full justify-start hover:bg-red-50 hover:text-red-600 active:scale-98 transition-all"
                       onClick={() => setCurrentView('favorites')}
                     >
                       <Heart className="mr-2 h-4 w-4" />
@@ -789,7 +791,7 @@ const BibleReader = () => {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start"
+                      className="w-full justify-start hover:bg-purple-50 hover:text-purple-600 active:scale-98 transition-all"
                     >
                       <Calendar className="mr-2 h-4 w-4" />
                       Plan de Lectura
@@ -797,7 +799,7 @@ const BibleReader = () => {
                     {telegramConnected && (
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-green-600"
+                        className="w-full justify-start text-green-600 hover:bg-green-50 hover:text-green-700 active:scale-98 transition-all"
                       >
                         <MessageCircle className="mr-2 h-4 w-4" />
                         Grupos Telegram
@@ -807,69 +809,25 @@ const BibleReader = () => {
                 </div>
 
                 <div className="border-t pt-4">
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Selección</h3>
+                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Navegación Rápida</h3>
                   
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Biblia</label>
-                      <Select value={selectedBible} onValueChange={setSelectedBible} disabled={loading}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona una Biblia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bibles.map(bible => (
-                            <SelectItem key={bible.id} value={bible.id}>
-                              {bible.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <Button
+                    onClick={() => setShowBibleSelector(true)}
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4 hover:bg-blue-50 hover:border-blue-300 active:scale-98 transition-all"
+                  >
+                    <div className="text-left">
+                      <div className="font-medium flex items-center gap-2">
+                        <Book className="h-4 w-4" />
+                        Seleccionar Pasaje
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {selectedBible && bibles.find(b => b.id === selectedBible)?.name.split(' ')[0]}
+                        {selectedBook && books.find(b => b.id === selectedBook) && ` • ${books.find(b => b.id === selectedBook)?.name}`}
+                        {selectedChapter && chapters.find(c => c.id === selectedChapter) && ` ${chapters.find(c => c.id === selectedChapter)?.number}`}
+                      </div>
                     </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Libro</label>
-                      <Select 
-                        value={selectedBook} 
-                        onValueChange={setSelectedBook} 
-                        disabled={!selectedBible || loading}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un libro" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <div className="max-h-60 overflow-y-auto">
-                            {books.map(book => (
-                              <SelectItem key={book.id} value={book.id}>
-                                {book.name}
-                              </SelectItem>
-                            ))}
-                          </div>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Capítulo</label>
-                      <Select 
-                        value={selectedChapter} 
-                        onValueChange={setSelectedChapter} 
-                        disabled={!selectedBook || loading}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un capítulo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <div className="max-h-40 overflow-y-auto">
-                            {chapters.map(chapter => (
-                              <SelectItem key={chapter.id} value={chapter.id}>
-                                Capítulo {chapter.number}
-                              </SelectItem>
-                            ))}
-                          </div>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -960,6 +918,22 @@ const BibleReader = () => {
         }`}>
           {showToast.message}
         </div>
+      )}
+      
+      {/* Bible Selector Modal */}
+      {showBibleSelector && (
+        <BibleSelector
+          bibles={bibles}
+          books={books}
+          chapters={chapters}
+          selectedBible={selectedBible}
+          selectedBook={selectedBook}
+          selectedChapter={selectedChapter}
+          onBibleSelect={setSelectedBible}
+          onBookSelect={setSelectedBook}
+          onChapterSelect={setSelectedChapter}
+          onClose={() => setShowBibleSelector(false)}
+        />
       )}
       
       {/* Bottom padding for mobile navigation */}
