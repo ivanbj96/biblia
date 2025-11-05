@@ -1,0 +1,29 @@
+{
+  "name": "Biblia PWA - Aplicación de la Biblia",
+  "short_name": "Biblia PWA",
+  "description": "Una aplicación web progresiva para leer la Biblia, inspirada en YouVersion",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["books", "education", "lifestyle"],
+  "lang": "es",
+  "scope": "/",
+  "prefer_related_applications": false
+}
+
