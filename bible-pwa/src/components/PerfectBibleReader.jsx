@@ -27,7 +27,7 @@ const PerfectBibleReader = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [fontSize, setFontSize] = useState('medium');
   const [favorites, setFavorites] = useState([]);
-  const [showBibleSelector, setShowBibleSelector] = useState(false);
+  const [showBibleSelector, setShowBibleSelector] = useState(true);
   const [showToast, setShowToast] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [readingStreak, setReadingStreak] = useState(7);
@@ -41,6 +41,8 @@ const PerfectBibleReader = () => {
         const biblesData = await getBibles();
         setBibles(biblesData);
         const spanishBible = biblesData.find(bible => 
+          bible.name.toLowerCase().includes('1909') ||
+          bible.name.toLowerCase().includes('reina') ||
           bible.language.name.toLowerCase().includes('spanish')
         ) || biblesData[0];
         if (spanishBible) {
@@ -93,6 +95,7 @@ const PerfectBibleReader = () => {
           const content = await getChapterContent(selectedBible, selectedChapter);
           setChapterContent(content.content);
           setCurrentView('reader');
+          setShowBibleSelector(false);
         } catch (error) {
           console.error('Error loading chapter content:', error);
         } finally {

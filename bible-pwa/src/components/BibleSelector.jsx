@@ -38,7 +38,7 @@ const BibleSelector = ({
 
   const handleChapterSelect = (chapter) => {
     onChapterSelect(chapter.id);
-    onClose();
+    // El selector se cerrará automáticamente cuando se cargue el capítulo
   };
 
   const renderBibleSelection = () => (
