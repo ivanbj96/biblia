@@ -268,7 +268,7 @@ const BibleReader = () => {
           <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <Button 
               onClick={() => setCurrentView('reader')} 
-              className="bg-white text-blue-600 hover:bg-gray-100 w-full sm:w-auto"
+              className="bg-white text-blue-600 hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
               size="lg"
             >
               <BookOpen className="mr-2 h-4 w-4" />
@@ -278,7 +278,7 @@ const BibleReader = () => {
               <Button 
                 onClick={connectTelegram}
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-blue-600 w-full sm:w-auto"
+                className="border-white text-white hover:bg-white hover:text-blue-600 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto"
                 size="lg"
               >
                 <MessageCircle className="mr-2 h-4 w-4" />
@@ -397,7 +397,7 @@ const BibleReader = () => {
                   <p className="text-sm text-green-600 dark:text-green-300">Comparte versículos y únete a grupos</p>
                 </div>
               </div>
-              <Button size="sm" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+              <Button size="sm" className="bg-green-600 hover:bg-green-700 hover:scale-105 active:scale-95 transition-all w-full sm:w-auto">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Abrir Telegram
               </Button>
