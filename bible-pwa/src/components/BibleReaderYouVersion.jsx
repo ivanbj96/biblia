@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { getBibles, getBooks, getChapters, getChapterContent, searchBible, getVerseOfTheDay } from '../services/bibleApi';
 import BottomNavigation from './BottomNavigation';
+import '../styles/verse-highlighting.css';
 
 const BibleReader = () => {
   const [bibles, setBibles] = useState([]);
@@ -59,6 +60,10 @@ const BibleReader = () => {
   const [telegramConnected, setTelegramConnected] = useState(false);
   const [selectedVerse, setSelectedVerse] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [highlightedVerses, setHighlightedVerses] = useState([]);
+  const [showToast, setShowToast] = useState(null);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
   // Cargar Biblias al inicializar
   useEffect(() => {
@@ -196,6 +201,60 @@ const BibleReader = () => {
   const addToFavorites = (verse, reference) => {
     const favorite = { verse, reference, date: new Date().toISOString() };
     setFavorites(prev => [...prev, favorite]);
+    showToastMessage('❤️ Agregado a favoritos', 'success');
+  };
+
+  const showToastMessage = (message, type = 'info') => {
+    setShowToast({ message, type });
+    setTimeout(() => setShowToast(null), 2000);
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      navigateChapter('next');
+    }
+    if (isRightSwipe) {
+      navigateChapter('prev');
+    }
+  };
+
+  const toggleHighlight = (verseId) => {
+    setHighlightedVerses(prev => 
+      prev.includes(verseId) 
+        ? prev.filter(id => id !== verseId)
+        : [...prev, verseId]
+    );
+  };
+
+  const navigateToVerse = (reference) => {
+    // Parse reference like "John 3:16"
+    const parts = reference.split(' ');
+    const bookName = parts.slice(0, -1).join(' ');
+    const chapterVerse = parts[parts.length - 1].split(':');
+    const chapterNum = chapterVerse[0];
+    
+    const book = books.find(b => b.name.toLowerCase().includes(bookName.toLowerCase()));
+    if (book) {
+      setSelectedBook(book.id);
+      const chapter = chapters.find(ch => ch.number === parseInt(chapterNum));
+      if (chapter) {
+        setSelectedChapter(chapter.id);
+      }
+    }
   };
 
   const renderHome = () => (
@@ -252,7 +311,7 @@ const BibleReader = () => {
                     size="sm" 
                     variant="ghost"
                     onClick={() => addToFavorites(verseOfTheDay.content, verseOfTheDay.reference)}
-                    className="flex-1 sm:flex-none"
+                    className="flex-1 sm:flex-none hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all"
                   >
                     <Heart className="h-4 w-4 mr-1" />
                     <span className="sm:hidden">Favorito</span>
@@ -260,8 +319,11 @@ const BibleReader = () => {
                   <Button 
                     size="sm" 
                     variant="ghost"
-                    onClick={() => shareToTelegram(verseOfTheDay.content, verseOfTheDay.reference)}
-                    className="flex-1 sm:flex-none"
+                    onClick={() => {
+                      shareToTelegram(verseOfTheDay.content, verseOfTheDay.reference);
+                      showToastMessage('📤 Compartido en Telegram', 'success');
+                    }}
+                    className="flex-1 sm:flex-none hover:bg-blue-50 hover:text-blue-600 active:scale-95 transition-all"
                   >
                     <Share2 className="h-4 w-4 mr-1" />
                     <span className="sm:hidden">Compartir</span>
@@ -379,10 +441,25 @@ const BibleReader = () => {
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="hover:bg-green-50">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hover:bg-blue-50 hover:text-blue-600 active:scale-95 transition-all"
+                onClick={() => {
+                  shareToTelegram(chapterContent, `${getCurrentBookName()} ${getCurrentChapterNumber()}`);
+                  showToastMessage('📤 Capítulo compartido', 'success');
+                }}
+              >
                 <Share2 className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="hover:bg-red-50">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all"
+                onClick={() => {
+                  addToFavorites(chapterContent, `${getCurrentBookName()} ${getCurrentChapterNumber()}`);
+                }}
+              >
                 <Heart className="h-4 w-4" />
               </Button>
             </div>
@@ -404,8 +481,11 @@ const BibleReader = () => {
               <div 
                 className={`prose prose-lg max-w-none leading-relaxed ${fontSizeClasses[fontSize]} ${
                   darkMode ? 'prose-invert' : ''
-                } hover:prose-a:text-blue-600 selection:bg-blue-100`}
+                } hover:prose-a:text-blue-600 selection:bg-yellow-200 select-text`}
                 dangerouslySetInnerHTML={{ __html: chapterContent }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
                 onMouseUp={() => {
                   const selection = window.getSelection();
                   if (selection.toString().trim()) {
@@ -413,20 +493,53 @@ const BibleReader = () => {
                     setShowShareModal(true);
                   }
                 }}
+                onClick={(e) => {
+                  // Detect verse clicks for highlighting
+                  const target = e.target;
+                  if (target.tagName === 'SPAN' && target.className.includes('verse')) {
+                    const verseId = target.getAttribute('data-verse-id');
+                    if (verseId) {
+                      toggleHighlight(verseId);
+                    }
+                  }
+                }}
+                style={{
+                  touchAction: 'pan-y'
+                }}
               />
               
               {/* Quick Actions Bar */}
               <div className="flex justify-center pt-6 border-t">
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="hover:bg-blue-50">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="hover:bg-blue-50 hover:text-blue-600 active:scale-95 transition-all"
+                    onClick={() => showToastMessage('📖 Capítulo guardado', 'success')}
+                  >
                     <Bookmark className="h-4 w-4 mr-2" />
                     Guardar
                   </Button>
-                  <Button size="sm" variant="outline" className="hover:bg-green-50">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="hover:bg-green-50 hover:text-green-600 active:scale-95 transition-all"
+                    onClick={() => {
+                      shareToTelegram(chapterContent, `${getCurrentBookName()} ${getCurrentChapterNumber()}`);
+                      showToastMessage('📤 Compartido en Telegram', 'success');
+                    }}
+                  >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Compartir
                   </Button>
-                  <Button size="sm" variant="outline" className="hover:bg-purple-50">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="hover:bg-purple-50 hover:text-purple-600 active:scale-95 transition-all"
+                    onClick={() => {
+                      addToFavorites(chapterContent, `${getCurrentBookName()} ${getCurrentChapterNumber()}`);
+                    }}
+                  >
                     <Star className="h-4 w-4 mr-2" />
                     Favorito
                   </Button>
@@ -496,11 +609,32 @@ const BibleReader = () => {
           ) : searchResults.length > 0 ? (
             <div className="space-y-4">
               {searchResults.map((result, index) => (
-                <div key={index} className={`p-4 rounded-lg border transition-colors duration-300 ${
-                  darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-gray-50'
-                }`}>
+                <div 
+                  key={index} 
+                  className={`p-4 rounded-lg border transition-all duration-300 cursor-pointer hover:shadow-md active:scale-98 ${
+                    darkMode ? 'border-gray-600 bg-gray-700 hover:bg-gray-600' : 'border-gray-200 bg-gray-50 hover:bg-white'
+                  }`}
+                  onClick={() => {
+                    navigateToVerse(result.reference);
+                    showToastMessage('📖 Navegando al versículo...', 'info');
+                  }}
+                >
                   <p className={`${fontSizeClasses[fontSize]} mb-2`} dangerouslySetInnerHTML={{ __html: result.text }} />
-                  <p className="text-sm text-gray-500 font-medium">{result.reference}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-blue-600 font-medium">{result.reference}</p>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        shareToTelegram(result.text, result.reference);
+                        showToastMessage('📤 Versículo compartido', 'success');
+                      }}
+                      className="hover:bg-blue-50 hover:text-blue-600 active:scale-95 transition-all"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -784,7 +918,15 @@ const BibleReader = () => {
                               <p className="mb-2 italic">"{fav.verse}"</p>
                               <div className="flex justify-between items-center">
                                 <p className="text-sm font-medium text-blue-600">{fav.reference}</p>
-                                <Button size="sm" variant="ghost" onClick={() => shareToTelegram(fav.verse, fav.reference)}>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => {
+                                    shareToTelegram(fav.verse, fav.reference);
+                                    showToastMessage('📤 Favorito compartido', 'success');
+                                  }}
+                                  className="hover:bg-blue-50 hover:text-blue-600 active:scale-95 transition-all"
+                                >
                                   <Share2 className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -808,6 +950,17 @@ const BibleReader = () => {
         favorites={favorites}
         setShowSettings={setShowSettings}
       />
+      
+      {/* Toast Notifications */}
+      {showToast && (
+        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg transition-all duration-300 ${
+          showToast.type === 'success' ? 'bg-green-500 text-white' :
+          showToast.type === 'error' ? 'bg-red-500 text-white' :
+          'bg-blue-500 text-white'
+        }`}>
+          {showToast.message}
+        </div>
+      )}
       
       {/* Bottom padding for mobile navigation */}
       <div className="h-20 sm:hidden"></div>

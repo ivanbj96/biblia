@@ -1,0 +1,47 @@
+/* Verse highlighting styles */
+.verse-marker {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.verse-marker:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  transform: scale(1.05);
+}
+
+.verse-marker:active {
+  transform: scale(0.95);
+}
+
+.highlighted-verse {
+  animation: highlight-pulse 0.3s ease-in-out;
+  background-color: rgba(251, 191, 36, 0.3) !important;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    transform: scale(1);
+    background-color: rgba(251, 191, 36, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    background-color: rgba(251, 191, 36, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    background-color: rgba(251, 191, 36, 0.3);
+  }
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .verse-marker:active {
+    background-color: rgba(59, 130, 246, 0.2);
+    transform: scale(0.98);
+  }
+}
