@@ -32,6 +32,7 @@ const PerfectBibleReader = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [readingStreak, setReadingStreak] = useState(7);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Load data
   useEffect(() => {
@@ -134,6 +135,85 @@ const PerfectBibleReader = () => {
     xlarge: 'text-2xl'
   };
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || !selectedBible) return;
+    try {
+      setLoading(true);
+      const results = await searchBible(selectedBible, searchQuery);
+      setSearchResults(results.verses || []);
+      setCurrentView('search');
+    } catch (error) {
+      console.error('Error searching:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderSearch = () => (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-4">Buscar en la Biblia</h1>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Buscar versículos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="pl-10 text-base"
+            />
+          </div>
+        </div>
+        
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-20 w-full" />
+            ))}
+          </div>
+        ) : searchResults.length > 0 ? (
+          <div className="space-y-4">
+            {searchResults.map((result, index) => (
+              <Card key={index} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                <p className="mb-2" dangerouslySetInnerHTML={{ __html: result.text }} />
+                <p className="text-sm text-blue-600 font-medium">{result.reference}</p>
+              </Card>
+            ))}
+          </div>
+        ) : searchQuery && (
+          <div className="text-center py-8 text-gray-500">
+            No se encontraron resultados para "{searchQuery}"
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderFavorites = () => (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Mis Favoritos</h1>
+        {favorites.length === 0 ? (
+          <div className="text-center py-12">
+            <Heart className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-gray-500">No tienes versículos favoritos aún</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {favorites.map((fav, index) => (
+              <Card key={index} className="p-4">
+                <p className="mb-2 italic">"{fav.verse}"</p>
+                <p className="text-sm text-blue-600 font-medium">{fav.reference}</p>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   // Perfect Home Screen
   const renderHome = () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900">
@@ -141,7 +221,7 @@ const PerfectBibleReader = () => {
       <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)} className="lg:hidden">
+            <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-2">
@@ -336,6 +416,44 @@ const PerfectBibleReader = () => {
     </div>
   );
 
+  // Sidebar
+  const renderSidebar = () => (
+    <div className={`fixed inset-y-0 left-0 z-40 w-80 transform transition-transform duration-300 ease-in-out ${
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+    } bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700`}>
+      <div className="flex flex-col h-full">
+        <div className="p-4 border-b">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Navegación</h2>
+            <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="space-y-4">
+            <Button
+              onClick={() => setShowBibleSelector(true)}
+              variant="outline"
+              className="w-full justify-start h-auto p-4"
+            >
+              <div className="text-left">
+                <div className="font-medium flex items-center gap-2">
+                  <Book className="h-4 w-4" />
+                  Seleccionar Pasaje
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Navegar a cualquier versículo
+                </div>
+              </div>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Perfect Bottom Navigation
   const BottomNav = () => (
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 z-50">
@@ -353,11 +471,11 @@ const PerfectBibleReader = () => {
             size="sm"
             onClick={() => {
               if (item.id === 'bible') setShowBibleSelector(true);
-              else if (item.id === 'search') setCurrentView('search');
+              else if (item.id === 'more') setShowSettings(true);
               else setCurrentView(item.id);
             }}
             className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
-              currentView === item.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
+              (currentView === item.id || (item.id === 'bible' && currentView === 'reader')) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
             }`}
           >
             <div className="relative">
@@ -379,6 +497,34 @@ const PerfectBibleReader = () => {
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
       {currentView === 'home' && renderHome()}
       {currentView === 'reader' && renderReader()}
+      {currentView === 'search' && renderSearch()}
+      {currentView === 'favorites' && renderFavorites()}
+      
+      {/* Sidebar */}
+      {renderSidebar()}
+      
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-30 bg-black bg-opacity-50"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
+      {/* Bible Selector */}
+      {showBibleSelector && (
+        <div className="fixed inset-0 z-50">
+          <div className="bg-white dark:bg-gray-900 h-full overflow-y-auto p-4">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold">Seleccionar Pasaje</h1>
+              <Button variant="ghost" onClick={() => setShowBibleSelector(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <p className="text-center text-gray-500">Selector de Biblia aquí</p>
+          </div>
+        </div>
+      )}
       
       <BottomNav />
       
