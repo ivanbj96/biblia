@@ -1,4 +1,4 @@
-import BibleReader from './components/BibleReader'
+import BibleReader from './components/BibleReaderYouVersion'
 import './App.css'
 
 function App() {
